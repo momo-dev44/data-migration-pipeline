@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  source_db:
+    image: postgres:15
+    container_name: source_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: legacy_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - source_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d legacy_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  target_db:
+    image: postgres:15
+    container_name: target_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: target_warehouse
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - target_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d target_warehouse"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  source_db_data:
+  target_db_data:
